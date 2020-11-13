@@ -763,6 +763,7 @@ public abstract class ExchangeSession {
     }
 
     protected String lastSentMessageId;
+    protected List<String> lastRcptToRecipients;
 
     /**
      * Send message in reader to recipients.
@@ -776,11 +777,12 @@ public abstract class ExchangeSession {
     public void sendMessage(List<String> rcptToRecipients, MimeMessage mimeMessage) throws IOException, MessagingException {
         // detect duplicate send command
         String messageId = mimeMessage.getMessageID();
-        if (lastSentMessageId != null && lastSentMessageId.equals(messageId)) {
+        if (lastSentMessageId != null && lastSentMessageId.equals(messageId) && lastRcptToRecipients.equals(rcptToRecipients)) {
             LOGGER.debug("Dropping message id " + messageId + ": already sent");
             return;
         }
         lastSentMessageId = messageId;
+        lastRcptToRecipients = rcptToRecipients;
 
         convertResentHeader(mimeMessage, "From");
         convertResentHeader(mimeMessage, "To");
